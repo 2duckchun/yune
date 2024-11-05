@@ -1,5 +1,8 @@
-interface CustomElementBase {
-  tag: 'div' | 'p' | 'span'
+export type CustomElementBaseTag = 'div' | 'p' | 'span'
+
+export interface CustomElementBase {
+  isGroup: false
+  tag: CustomElementBaseTag
   width: number
   height: number
   color: string
@@ -19,18 +22,16 @@ export interface CustomSpanElement extends CustomElementBase {
   tag: 'span'
 }
 
-export type CustomElementList = (
+export type CustomElement =
   | CustomDivElement
   | CustomParagraphElement
   | CustomSpanElement
-)[]
 
 export type CustomElementGroup = {
+  isGroup: true
   isSelected: boolean
   isVertical: boolean
-  children: CustomElementList
+  children: CustomElement[]
 }
 
-export type CustomElementGlobal = {
-  isVertical: boolean
-}
+export type GlobalAlign = 'horizontal' | 'vertical'
