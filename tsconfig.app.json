@@ -20,7 +20,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* 경로 */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+
     // "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
