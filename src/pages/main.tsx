@@ -12,7 +12,7 @@ export const Main: FunctionComponent<MainProps> = ({
 }): JSX.Element => {
   return (
     <ElementStateMagagingContextProvider>
-      <div className={cn('flex h-screen w-full', className)} {...props}>
+      <div className={cn('flex min-h-screen w-full', className)} {...props}>
         <SideMenu />
         <Playground />
       </div>
