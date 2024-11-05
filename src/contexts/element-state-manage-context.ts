@@ -44,15 +44,7 @@ export const useElementStateManagingHook = () => {
   const [globalAlign, setGlobalAlign] = useState<GlobalAlign>('horizontal')
 
   const addNewElement = (tag: CustomElementBaseTag) => {
-    const element: CustomElementBase = {
-      color: getRandomHexColorCode(),
-      tag: tag,
-      height: 200,
-      width: 200,
-      isGroup: false,
-      isSelected: false
-    }
-
+    const element = makeCustomElement(tag)
     const currentElementList = [...elementList]
     setElementList([...currentElementList, element])
   }
@@ -78,4 +70,15 @@ export const useElementStateManagingContext = () => {
     )
 
   return context
+}
+
+const makeCustomElement = (tag: CustomElementBaseTag): CustomElementBase => {
+  return {
+    color: getRandomHexColorCode(),
+    tag: tag,
+    height: 200,
+    width: 200,
+    isGroup: false,
+    isSelected: false
+  }
 }
