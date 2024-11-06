@@ -1,6 +1,7 @@
 import { FunctionComponent, HTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 import { useElementStateManagingContext } from '@/contexts/element-state-manage-context'
+import { SideMenuElementButton } from '../element/side-menu-element-button'
 
 interface SideMenuProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -8,7 +9,7 @@ export const SideMenu: FunctionComponent<SideMenuProps> = ({
   className,
   ...props
 }): JSX.Element => {
-  const { setGlobalAlignHander, addNewElement } =
+  const { elementList, setGlobalAlignHander, addNewElement } =
     useElementStateManagingContext()
   return (
     <aside
@@ -53,6 +54,15 @@ export const SideMenu: FunctionComponent<SideMenuProps> = ({
           <button className="text-sm" onClick={() => addNewElement('p')}>
             Paragraph
           </button>
+        </div>
+      </div>
+      <div className="bg-gray-600 p-2">
+        <h2 className="text-center text-lg text-gray-50">List</h2>
+        <div className="flex flex-col gap-2 p-3">
+          {elementList.map((element) => {
+            if (!element.isGroup)
+              return <SideMenuElementButton tag={element.tag} />
+          })}
         </div>
       </div>
     </aside>

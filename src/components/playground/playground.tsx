@@ -11,7 +11,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
   className,
   ...props
 }): JSX.Element => {
-  const { elementList, globalAlign } = useElementStateManagingContext()
+  const { elementList, globalAlign, moveElement } =
+    useElementStateManagingContext()
 
   return (
     <section
@@ -21,13 +22,17 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
         globalAlign === 'horizontal' && 'flex-row',
         globalAlign === 'vertical' && 'flex-col'
       )}
+      style={{}}
       {...props}
     >
-      {elementList.map((element) => {
+      {elementList.map((element, index) => {
         if (!element.isGroup) {
           if (element.tag === 'div')
             return (
               <CustomDivElement
+                index={index}
+                moveElement={moveElement}
+                id={element.id}
                 className="shrink-0"
                 bgColor={element.color}
                 height={element.height}
@@ -38,6 +43,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
           if (element.tag === 'p')
             return (
               <CustomParagraphElement
+                index={index}
+                moveElement={moveElement}
+                id={element.id}
                 className="shrink-0"
                 bgColor={element.color}
                 height={element.height}
@@ -48,6 +56,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
           if (element.tag === 'span')
             return (
               <CustomSpanElement
+                index={index}
+                moveElement={moveElement}
+                id={element.id}
                 className="shrink-0"
                 bgColor={element.color}
                 height={element.height}
