@@ -1,6 +1,7 @@
 export type CustomElementBaseTag = 'div' | 'p' | 'span'
 
 export interface CustomElementBase {
+  id: string
   isGroup: false
   tag: CustomElementBaseTag
   width: number
@@ -35,3 +36,7 @@ export type CustomElementGroup = {
 }
 
 export type GlobalAlign = 'horizontal' | 'vertical'
+
+export type DraggableCustomElement =
+  | (CustomElement & { index: number })
+  | (CustomElementGroup & { index: number })
