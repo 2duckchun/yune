@@ -9,53 +9,19 @@ import {
 import { createContext, useCallback, useContext, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import update from 'immutability-helper'
+import { useKeyboardObserver } from '@/hooks/use-keyboard-observer'
 
 export const ElementStateStateContext = createContext<ReturnType<
   typeof useElementStateManagingHook
 > | null>(null)
 
 export const useElementStateManagingHook = () => {
+  const { keyPressed } = useKeyboardObserver()
   const [elementList, setElementList] = useState<
     (CustomElement | CustomElementGroup)[]
-  >([
-    {
-      id: uuidv4(),
-      isGroup: false,
-      tag: 'div',
-      color: getRandomHexColorCode(),
-      height: 200,
-      width: 200,
-      isSelected: false
-    },
-    {
-      id: uuidv4(),
-      isGroup: false,
-      tag: 'div',
-      color: getRandomHexColorCode(),
-      height: 200,
-      width: 200,
-      isSelected: false
-    },
-    {
-      id: uuidv4(),
-      isGroup: false,
-      tag: 'div',
-      color: getRandomHexColorCode(),
-      height: 200,
-      width: 200,
-      isSelected: false
-    },
-    {
-      id: uuidv4(),
-      isGroup: false,
-      tag: 'div',
-      color: getRandomHexColorCode(),
-      height: 200,
-      width: 200,
-      isSelected: false
-    }
-  ])
+  >([])
   const [globalAlign, setGlobalAlign] = useState<GlobalAlign>('horizontal')
+  const [selectedElementList, setSelectedElementList] = useState<string[]>([])
 
   const moveElement = useCallback((dragIndex: number, hoverIndex: number) => {
     setElementList((prevCards: (CustomElement | CustomElementGroup)[]) =>
@@ -78,6 +44,30 @@ export const useElementStateManagingHook = () => {
     setElementList([...currentElementList, element])
   }
 
+  const setSelectElement = (id: string) => {
+    const currentSelectedElementList = [...selectedElementList]
+    const isPushedShiftKey = keyPressed.has('Shift')
+    // 쉬프트를 누르고 선택할 경우
+    if (isPushedShiftKey) {
+      setSelectedElementList([...currentSelectedElementList, id])
+      return
+    }
+
+    // 선택된 엘리먼트 재 선택시
+    if (currentSelectedElementList.includes(id)) {
+      setSelectedElementList(
+        currentSelectedElementList.filter((element) => element !== id)
+      )
+      return
+    }
+
+    // 선택되지 않은 엘리먼트 선택시
+    if (currentSelectedElementList.length !== 0) {
+      setSelectedElementList([id])
+      return
+    }
+  }
+
   const setGlobalAlignHander = (direction: GlobalAlign) => {
     setGlobalAlign(direction)
   }
@@ -85,10 +75,12 @@ export const useElementStateManagingHook = () => {
   return {
     elementList,
     globalAlign,
+    selectedElementList,
     setElementList,
     setGlobalAlignHander,
     addNewElement,
-    moveElement
+    moveElement,
+    setSelectElement
   }
 }
 
