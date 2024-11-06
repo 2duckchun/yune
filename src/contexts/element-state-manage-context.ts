@@ -6,7 +6,9 @@ import {
   CustomElementGroup,
   GlobalAlign
 } from '@/types/element'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import update from 'immutability-helper'
 
 export const ElementStateStateContext = createContext<ReturnType<
   typeof useElementStateManagingHook
@@ -17,6 +19,7 @@ export const useElementStateManagingHook = () => {
     (CustomElement | CustomElementGroup)[]
   >([
     {
+      id: uuidv4(),
       isGroup: false,
       tag: 'div',
       color: getRandomHexColorCode(),
@@ -25,16 +28,27 @@ export const useElementStateManagingHook = () => {
       isSelected: false
     },
     {
+      id: uuidv4(),
       isGroup: false,
-      tag: 'span',
+      tag: 'div',
       color: getRandomHexColorCode(),
       height: 200,
       width: 200,
       isSelected: false
     },
     {
+      id: uuidv4(),
       isGroup: false,
-      tag: 'p',
+      tag: 'div',
+      color: getRandomHexColorCode(),
+      height: 200,
+      width: 200,
+      isSelected: false
+    },
+    {
+      id: uuidv4(),
+      isGroup: false,
+      tag: 'div',
       color: getRandomHexColorCode(),
       height: 200,
       width: 200,
@@ -42,6 +56,21 @@ export const useElementStateManagingHook = () => {
     }
   ])
   const [globalAlign, setGlobalAlign] = useState<GlobalAlign>('horizontal')
+
+  const moveElement = useCallback((dragIndex: number, hoverIndex: number) => {
+    setElementList((prevCards: (CustomElement | CustomElementGroup)[]) =>
+      update(prevCards, {
+        $splice: [
+          [dragIndex, 1],
+          [
+            hoverIndex,
+            0,
+            prevCards[dragIndex] as CustomElement | CustomElementGroup
+          ]
+        ]
+      })
+    )
+  }, [])
 
   const addNewElement = (tag: CustomElementBaseTag) => {
     const element = makeCustomElement(tag)
@@ -58,7 +87,8 @@ export const useElementStateManagingHook = () => {
     globalAlign,
     setElementList,
     setGlobalAlignHander,
-    addNewElement
+    addNewElement,
+    moveElement
   }
 }
 
@@ -74,6 +104,7 @@ export const useElementStateManagingContext = () => {
 
 const makeCustomElement = (tag: CustomElementBaseTag): CustomElementBase => {
   return {
+    id: uuidv4(),
     color: getRandomHexColorCode(),
     tag: tag,
     height: 200,
