@@ -42,3 +42,5 @@ export type CustomElementGroup = {
 export type DraggableCustomElement =
   | (CustomElement & { index: number })
   | (CustomElementGroup & { index: number })
+
+export type SelectedElement = { id: string; isGrouped: boolean }

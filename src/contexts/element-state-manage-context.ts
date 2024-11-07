@@ -4,9 +4,16 @@ import {
   CustomElementBase,
   CustomElementBaseTag,
   CustomElementGroup,
-  GlobalAlign
+  GlobalAlign,
+  SelectedElement
 } from '@/types/element'
-import { createContext, useCallback, useContext, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import update from 'immutability-helper'
 import { useKeyboardObserver } from '@/hooks/use-keyboard-observer'
@@ -17,12 +24,50 @@ export const ElementStateStateContext = createContext<ReturnType<
 
 export const useElementStateManagingHook = () => {
   const { keyPressed } = useKeyboardObserver()
+
   const [elementList, setElementList] = useState<
     (CustomElement | CustomElementGroup)[]
-  >([])
+  >([
+    {
+      id: uuidv4(),
+      isGroup: true,
+      isSelected: false,
+      groupAlign: 'horizontal',
+      childElementList: [
+        {
+          id: uuidv4(),
+          isGroup: false,
+          tag: 'div',
+          color: getRandomHexColorCode(),
+          height: 200,
+          width: 200,
+          isSelected: false
+        },
+        {
+          id: uuidv4(),
+          isGroup: false,
+          tag: 'div',
+          color: getRandomHexColorCode(),
+          height: 200,
+          width: 200,
+          isSelected: false
+        },
+        {
+          id: uuidv4(),
+          isGroup: false,
+          tag: 'div',
+          color: getRandomHexColorCode(),
+          height: 200,
+          width: 200,
+          isSelected: false
+        }
+      ]
+    }
+  ])
   const [globalAlign, setGlobalAlign] = useState<GlobalAlign>('horizontal')
-  const [selectedElementList, setSelectedElementList] = useState<string[]>([])
-
+  const [selectedElementList, setSelectedElementList] = useState<
+    SelectedElement[]
+  >([])
   const moveElement = useCallback((dragIndex: number, hoverIndex: number) => {
     setElementList((prevCards: (CustomElement | CustomElementGroup)[]) =>
       update(prevCards, {
@@ -38,34 +83,84 @@ export const useElementStateManagingHook = () => {
     )
   }, [])
 
+  useEffect(() => {
+    if (keyPressed.has('Shift') && keyPressed.has('G')) {
+      // 그룹되지 않은 요소들의 id를 추출
+      const selectedUngroupedIds = new Set(
+        selectedElementList
+          .filter((element) => !element.isGrouped)
+          .map((element) => element.id)
+      )
+
+      // 빈 그룹 생성을 막기 위해 그룹되지 않은 요소가 없으면 종료
+      if (selectedUngroupedIds.size === 0) {
+        return
+      }
+
+      // elementList에서 그룹되지 않은 선택된 요소 제거
+      const updatedElementList = elementList.filter(
+        (element) => !selectedUngroupedIds.has(element.id)
+      )
+
+      // 그룹으로 묶을 요소들 생성
+      const groupedElement = {
+        id: uuidv4(),
+        isGroup: true,
+        isSelected: false,
+        groupAlign: globalAlign,
+        childElementList: elementList.filter((element) =>
+          selectedUngroupedIds.has(element.id)
+        )
+      } as CustomElementGroup
+
+      // 새로운 그룹을 기존 elementList의 마지막에 추가
+      setElementList([...updatedElementList, groupedElement])
+
+      // 그룹이 아닌 선택된 요소들 리스트에서 제거
+      setSelectedElementList((prevSelectedList) =>
+        prevSelectedList.filter((element) => element.isGrouped)
+      )
+    }
+  }, [keyPressed, elementList, selectedElementList, globalAlign])
+
   const addNewElement = (tag: CustomElementBaseTag) => {
     const element = makeCustomElement(tag)
     const currentElementList = [...elementList]
     setElementList([...currentElementList, element])
   }
 
-  const setSelectElement = (id: string) => {
+  const setSelectElement = ({
+    id,
+    isGrouped
+  }: {
+    id: string
+    isGrouped: boolean
+  }) => {
     const currentSelectedElementList = [...selectedElementList]
+
     const isPushedShiftKey = keyPressed.has('Shift')
     // 쉬프트를 누르고 선택할 경우
     if (isPushedShiftKey) {
-      setSelectedElementList([...currentSelectedElementList, id])
+      setSelectedElementList([...currentSelectedElementList, { id, isGrouped }])
       return
     }
 
     // 선택된 엘리먼트 재 선택시
-    if (currentSelectedElementList.includes(id)) {
+    if (currentSelectedElementList.find((element) => element.id === id)) {
       setSelectedElementList(
-        currentSelectedElementList.filter((element) => element !== id)
+        currentSelectedElementList.filter((element) => element.id !== id)
       )
       return
     }
 
     // 선택되지 않은 엘리먼트 선택시
     if (currentSelectedElementList.length !== 0) {
-      setSelectedElementList([id])
+      setSelectedElementList([{ id, isGrouped }])
       return
     }
+
+    // 기본 동작
+    setSelectedElementList([...currentSelectedElementList, { id, isGrouped }])
   }
 
   const setGlobalAlignHander = (direction: GlobalAlign) => {
