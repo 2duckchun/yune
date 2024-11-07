@@ -17,7 +17,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
   return (
     <section
       className={cn(
-        'flex h-full w-full shrink-0 flex-nowrap',
+        'flex h-full w-full shrink-0 flex-nowrap bg-slate-200',
         className,
         globalAlign === 'horizontal' && 'flex-row',
         globalAlign === 'vertical' && 'flex-col'
