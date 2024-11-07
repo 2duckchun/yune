@@ -5,6 +5,7 @@ import {
   CustomElementBaseTag,
   CustomElementGroup,
   GlobalAlign,
+  GroupAlign,
   SelectedElement
 } from '@/types/element'
 import {
@@ -68,6 +69,7 @@ export const useElementStateManagingHook = () => {
   const [selectedElementList, setSelectedElementList] = useState<
     SelectedElement[]
   >([])
+
   const moveElement = useCallback((dragIndex: number, hoverIndex: number) => {
     setElementList((prevCards: (CustomElement | CustomElementGroup)[]) =>
       update(prevCards, {
@@ -82,6 +84,29 @@ export const useElementStateManagingHook = () => {
       })
     )
   }, [])
+
+  const modifyGroupElementAlign = (direction: GroupAlign) => {
+    const selectedGroupedIds = new Set(
+      selectedElementList
+        .filter((element) => element.isGrouped)
+        .map((element) => element.id)
+    )
+
+    if (selectedGroupedIds.size === 0) return
+
+    setElementList((prevElementList) =>
+      prevElementList.map((element) => {
+        // 그룹 요소인지 확인
+        if (element.isGroup && selectedGroupedIds.has(element.id)) {
+          return {
+            ...element,
+            groupAlign: direction // 새로운 정렬 방향으로 업데이트
+          }
+        }
+        return element // 그룹이 아닐 경우 기존 요소 반환
+      })
+    )
+  }
 
   useEffect(() => {
     if (keyPressed.has('Shift') && keyPressed.has('G')) {
@@ -175,7 +200,8 @@ export const useElementStateManagingHook = () => {
     setGlobalAlignHander,
     addNewElement,
     moveElement,
-    setSelectElement
+    setSelectElement,
+    modifyGroupElementAlign
   }
 }
 
