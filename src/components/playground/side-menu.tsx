@@ -59,9 +59,24 @@ export const SideMenu: FunctionComponent<SideMenuProps> = ({
       <div className="bg-gray-600 p-2">
         <h2 className="text-center text-lg text-gray-50">List</h2>
         <div className="flex flex-col gap-2 p-3">
-          {elementList.map((element) => {
-            if (!element.isGroup)
-              return <SideMenuElementButton tag={element.tag} />
+          {elementList.map((element, index) => {
+            if (element.isGroup) {
+              return (
+                <SideMenuElementButton
+                  index={index}
+                  id={element.id}
+                  isGrouped
+                  tag="group"
+                />
+              )
+            }
+            return (
+              <SideMenuElementButton
+                index={index}
+                id={element.id}
+                tag={element.tag}
+              />
+            )
           })}
         </div>
       </div>
