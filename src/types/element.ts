@@ -1,4 +1,7 @@
 export type CustomElementBaseTag = 'div' | 'p' | 'span'
+export type Align = 'horizontal' | 'vertical'
+export type GroupAlign = Align
+export type GlobalAlign = Align
 
 export interface CustomElementBase {
   id: string
@@ -29,13 +32,12 @@ export type CustomElement =
   | CustomSpanElement
 
 export type CustomElementGroup = {
+  id: string
   isGroup: true
   isSelected: boolean
-  isVertical: boolean
-  children: CustomElement[]
+  groupAlign: GroupAlign
+  childElementList: CustomElement[]
 }
-
-export type GlobalAlign = 'horizontal' | 'vertical'
 
 export type DraggableCustomElement =
   | (CustomElement & { index: number })
