@@ -8,22 +8,18 @@ import { CustomElementGroup } from '../element/custom-element-group'
 
 interface PlaygroundProps extends HTMLAttributes<HTMLDivElement> {}
 
-export const Playground: FunctionComponent<PlaygroundProps> = ({
-  className,
-  ...props
-}): JSX.Element => {
+export const Playground: FunctionComponent<
+  PlaygroundProps
+> = (): JSX.Element => {
   const { elementList, globalAlign } = useElementStateManagingContext()
 
   return (
     <section
       className={cn(
-        'flex h-full w-full shrink-0 flex-nowrap bg-slate-200',
-        className,
+        'flex h-full w-full shrink-0 flex-wrap bg-slate-200',
         globalAlign === 'horizontal' && 'flex-row',
         globalAlign === 'vertical' && 'flex-col'
       )}
-      style={{}}
-      {...props}
     >
       {elementList.map((element, index) => {
         if (element.isGroup) {
