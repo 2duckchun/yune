@@ -46,32 +46,20 @@ export const CustomElementGroup: FunctionComponent<CustomElementGroupProps> = ({
       const dragIndex = item.index
       const hoverIndex = index
       if (dragIndex === hoverIndex) return
-      // Determine rectangle on screen
-      const hoverBoundingRect = ref.current?.getBoundingClientRect()
 
-      // Get vertical middle
+      // group의 경우, Drag and Drop으로 element 교환이 잘 일어나지 않는 현상을 제어하기 위해 추가한 코드들임
+      const hoverBoundingRect = ref.current?.getBoundingClientRect()
       const hoverMiddleY =
         (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-
-      // Determine mouse position
       const clientOffset = monitor.getClientOffset()
-
-      // Get pixels to the top
       const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
-
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
       const hoverThreshold = 100
-
       if (
         dragIndex < hoverIndex &&
         hoverClientY < hoverMiddleY - hoverThreshold
       ) {
         return
       }
-
-      // Dragging upwards
       if (
         dragIndex > hoverIndex &&
         hoverClientY > hoverMiddleY + hoverThreshold
@@ -98,6 +86,7 @@ export const CustomElementGroup: FunctionComponent<CustomElementGroupProps> = ({
   })
 
   const opacity = isDragging ? 0 : 1
+
   drag(drop(ref))
 
   return (
