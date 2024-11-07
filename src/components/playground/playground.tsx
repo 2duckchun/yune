@@ -4,6 +4,7 @@ import { useElementStateManagingContext } from '@/contexts/element-state-manage-
 import { CustomDivElement } from '../element/custom-div-element'
 import { CustomParagraphElement } from '../element/custom-paragraph-element'
 import { CustomSpanElement } from '../element/custom-span-element'
+import { CustomElementGroup } from '../element/custom-element-group'
 
 interface PlaygroundProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -11,8 +12,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
   className,
   ...props
 }): JSX.Element => {
-  const { elementList, globalAlign, moveElement } =
-    useElementStateManagingContext()
+  const { elementList, globalAlign } = useElementStateManagingContext()
 
   return (
     <section
@@ -26,46 +26,56 @@ export const Playground: FunctionComponent<PlaygroundProps> = ({
       {...props}
     >
       {elementList.map((element, index) => {
-        if (!element.isGroup) {
-          if (element.tag === 'div')
-            return (
-              <CustomDivElement
-                index={index}
-                moveElement={moveElement}
-                id={element.id}
-                className="shrink-0"
-                bgColor={element.color}
-                height={element.height}
-                width={element.width}
-              />
-            )
-
-          if (element.tag === 'p')
-            return (
-              <CustomParagraphElement
-                index={index}
-                moveElement={moveElement}
-                id={element.id}
-                className="shrink-0"
-                bgColor={element.color}
-                height={element.height}
-                width={element.width}
-              />
-            )
-
-          if (element.tag === 'span')
-            return (
-              <CustomSpanElement
-                index={index}
-                moveElement={moveElement}
-                id={element.id}
-                className="shrink-0"
-                bgColor={element.color}
-                height={element.height}
-                width={element.width}
-              />
-            )
+        if (element.isGroup) {
+          return (
+            <CustomElementGroup
+              key={element.id}
+              index={index}
+              childElementList={element.childElementList}
+              id={element.id}
+              groupAlign={element.groupAlign}
+            />
+          )
         }
+
+        if (element.tag === 'div')
+          return (
+            <CustomDivElement
+              key={element.id}
+              index={index}
+              id={element.id}
+              className="shrink-0"
+              bgColor={element.color}
+              height={element.height}
+              width={element.width}
+            />
+          )
+
+        if (element.tag === 'p')
+          return (
+            <CustomParagraphElement
+              key={element.id}
+              index={index}
+              id={element.id}
+              className="shrink-0"
+              bgColor={element.color}
+              height={element.height}
+              width={element.width}
+            />
+          )
+
+        if (element.tag === 'span')
+          return (
+            <CustomSpanElement
+              index={index}
+              key={element.id}
+              id={element.id}
+              className="shrink-0"
+              bgColor={element.color}
+              height={element.height}
+              width={element.width}
+            />
+          )
       })}
     </section>
   )
