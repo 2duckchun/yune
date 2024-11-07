@@ -4,6 +4,7 @@ import { useDrag, useDrop } from 'react-dnd'
 import { DraggableCustomElement } from '@/types/element'
 import { Identifier } from 'dnd-core'
 import { DRAG_ITEM_TYPE } from '@/constants/element'
+import { useElementStateManagingContext } from '@/contexts/element-state-manage-context'
 
 interface CustomSpanElementProps extends HTMLAttributes<HTMLSpanElement> {
   width: number
@@ -11,7 +12,7 @@ interface CustomSpanElementProps extends HTMLAttributes<HTMLSpanElement> {
   bgColor: string
   id: string
   index: number
-  moveElement: (dragIndex: number, hoverIndex: number) => void
+  isGrouped?: boolean
 }
 
 export const CustomSpanElement: FunctionComponent<CustomSpanElementProps> = ({
@@ -21,10 +22,13 @@ export const CustomSpanElement: FunctionComponent<CustomSpanElementProps> = ({
   className,
   bgColor,
   index,
-  moveElement,
+  isGrouped = false,
   ...props
 }): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null)
+  const { moveElement, selectedElementList, setSelectElement } =
+    useElementStateManagingContext()
+  const isSelected = selectedElementList.find((element) => element.id === id)
   const [{ handlerId }, drop] = useDrop<
     DraggableCustomElement,
     void,
@@ -71,16 +75,35 @@ export const CustomSpanElement: FunctionComponent<CustomSpanElementProps> = ({
   const opacity = isDragging ? 0 : 1
   drag(drop(ref))
 
+  if (isGrouped) {
+    return (
+      <span
+        style={{
+          opacity,
+          width: 100,
+          height: 100,
+          backgroundColor: bgColor
+        }}
+      >
+        Grouped span
+      </span>
+    )
+  }
+
   return (
     <span
       ref={ref}
-      className={cn(className)}
+      className={cn(
+        className,
+        isSelected ? 'border-2 border-red-500' : 'border-0'
+      )}
       style={{
         opacity,
         width: width,
         height: height,
         backgroundColor: bgColor
       }}
+      onClick={() => setSelectElement({ id, isGrouped })}
       data-handler-id={handlerId}
       {...props}
     >

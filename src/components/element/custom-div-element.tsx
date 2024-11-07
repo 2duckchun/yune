@@ -4,6 +4,7 @@ import { useDrag, useDrop } from 'react-dnd'
 import { DRAG_ITEM_TYPE } from '@/constants/element'
 import type { Identifier } from 'dnd-core'
 import { DraggableCustomElement } from '@/types/element'
+import { useElementStateManagingContext } from '@/contexts/element-state-manage-context'
 
 interface CustomDivElementProps extends HTMLAttributes<HTMLDivElement> {
   width: number
@@ -11,7 +12,7 @@ interface CustomDivElementProps extends HTMLAttributes<HTMLDivElement> {
   bgColor: string
   id: string
   index: number
-  moveElement: (dragIndex: number, hoverIndex: number) => void
+  isGrouped?: boolean
 }
 
 export const CustomDivElement: FunctionComponent<CustomDivElementProps> = ({
@@ -21,11 +22,13 @@ export const CustomDivElement: FunctionComponent<CustomDivElementProps> = ({
   className,
   bgColor,
   index,
-  moveElement,
+  isGrouped = false,
   ...props
 }): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null)
-
+  const { moveElement, selectedElementList, setSelectElement } =
+    useElementStateManagingContext()
+  const isSelected = selectedElementList.find((element) => element.id === id)
   const [{ handlerId }, drop] = useDrop<
     DraggableCustomElement,
     void,
@@ -38,23 +41,18 @@ export const CustomDivElement: FunctionComponent<CustomDivElementProps> = ({
       }
     },
     hover(item: DraggableCustomElement) {
-      if (!ref.current) {
-        return
-      }
+      if (!ref.current) return
 
+      // 같은 아이템이라면 아무 행동도 일어나지 않음.
       const dragIndex = item.index
       const hoverIndex = index
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return
-      }
+      if (dragIndex === hoverIndex) return
 
       moveElement(dragIndex, hoverIndex)
 
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
+      /* 리액트에서는 객체의 불변성을 유지해야 하지만
+      해당 경우는 index search에 대한 비용을 줄이기 위해
+      monitor item의 객체를 직접 변경함. */
       item.index = hoverIndex
     }
   })
@@ -72,10 +70,28 @@ export const CustomDivElement: FunctionComponent<CustomDivElementProps> = ({
   const opacity = isDragging ? 0 : 1
   drag(drop(ref))
 
+  if (isGrouped) {
+    return (
+      <div
+        style={{
+          opacity,
+          width: 100,
+          height: 100,
+          backgroundColor: bgColor
+        }}
+      >
+        Grouped Div
+      </div>
+    )
+  }
+
   return (
     <div
       ref={ref}
-      className={cn(className)}
+      className={cn(
+        className,
+        isSelected ? 'border-2 border-red-500' : 'border-0'
+      )}
       style={{
         opacity,
         cursor: 'move',
@@ -83,6 +99,7 @@ export const CustomDivElement: FunctionComponent<CustomDivElementProps> = ({
         height: height,
         backgroundColor: bgColor
       }}
+      onClick={() => setSelectElement({ id, isGrouped })}
       data-handler-id={handlerId}
       {...props}
     >
