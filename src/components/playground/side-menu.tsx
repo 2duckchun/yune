@@ -9,8 +9,12 @@ export const SideMenu: FunctionComponent<SideMenuProps> = ({
   className,
   ...props
 }): JSX.Element => {
-  const { elementList, setGlobalAlignHander, addNewElement } =
-    useElementStateManagingContext()
+  const {
+    elementList,
+    setGlobalAlignHander,
+    addNewElement,
+    modifyGroupElementAlign
+  } = useElementStateManagingContext()
   return (
     <aside
       className={cn(
@@ -24,22 +28,28 @@ export const SideMenu: FunctionComponent<SideMenuProps> = ({
         <div className="flex flex-col gap-2 p-3">
           <button
             className="text-sm"
-            onClick={() => {
-              setGlobalAlignHander('vertical')
-            }}
+            onClick={() => setGlobalAlignHander('vertical')}
           >
             All Vertically
           </button>
           <button
             className="text-sm"
-            onClick={() => {
-              setGlobalAlignHander('horizontal')
-            }}
+            onClick={() => setGlobalAlignHander('horizontal')}
           >
             All Horizontally
           </button>
-          <button className="text-sm">Group Vertically</button>
-          <button className="text-sm">Group Horizontally</button>
+          <button
+            className="text-sm"
+            onClick={() => modifyGroupElementAlign('vertical')}
+          >
+            Group Vertically
+          </button>
+          <button
+            className="text-sm"
+            onClick={() => modifyGroupElementAlign('horizontal')}
+          >
+            Group Horizontally
+          </button>
         </div>
       </div>
       <div className="bg-gray-600 p-2">
