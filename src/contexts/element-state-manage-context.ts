@@ -8,68 +8,53 @@ import {
   GroupAlign,
   SelectedElement
 } from '@/types/element'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState
-} from 'react'
+import { createContext, useCallback, useContext, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import update from 'immutability-helper'
 import { useKeyboardObserver } from '@/hooks/use-keyboard-observer'
+import { useElementGrouping } from '@/hooks/element-state-manage-hooks/use-element-grouping'
+import { useElementUngrouping } from '@/hooks/element-state-manage-hooks/use-element-ungrouping'
 
 export const ElementStateStateContext = createContext<ReturnType<
   typeof useElementStateManagingHook
 > | null>(null)
 
 export const useElementStateManagingHook = () => {
+  // 키 감지를 위한 hook
   const { keyPressed } = useKeyboardObserver()
 
+  // 나열된 element를 관리하는 주요 state
   const [elementList, setElementList] = useState<
     (CustomElement | CustomElementGroup)[]
-  >([
-    {
-      id: uuidv4(),
-      isGroup: true,
-      isSelected: false,
-      groupAlign: 'horizontal',
-      childElementList: [
-        {
-          id: uuidv4(),
-          isGroup: false,
-          tag: 'div',
-          color: getRandomHexColorCode(),
-          height: 200,
-          width: 200,
-          isSelected: false
-        },
-        {
-          id: uuidv4(),
-          isGroup: false,
-          tag: 'div',
-          color: getRandomHexColorCode(),
-          height: 200,
-          width: 200,
-          isSelected: false
-        },
-        {
-          id: uuidv4(),
-          isGroup: false,
-          tag: 'div',
-          color: getRandomHexColorCode(),
-          height: 200,
-          width: 200,
-          isSelected: false
-        }
-      ]
-    }
-  ])
+  >([])
+
+  // 전역 정렬 state
   const [globalAlign, setGlobalAlign] = useState<GlobalAlign>('horizontal')
+
+  // 선택된 element를 관리하는 state
   const [selectedElementList, setSelectedElementList] = useState<
     SelectedElement[]
   >([])
 
+  // Shift + G를 눌렀을 때 element들을 그룹핑 해주는 훅
+  useElementGrouping({
+    elementList,
+    keyPressed,
+    selectedElementList,
+    setElementList,
+    setSelectedElementList
+  })
+
+  // Ctrl + Shift + G를 눌렀을 때 그룹들을 언그룹핑 해주는 훅
+  useElementUngrouping({
+    elementList,
+    keyPressed,
+    selectedElementList,
+    setElementList,
+    setSelectedElementList
+  })
+
+  // 나열된 element를 이동시키는 함수 (Drag & Drop과 연관있음)
   const moveElement = useCallback((dragIndex: number, hoverIndex: number) => {
     setElementList((prevCards: (CustomElement | CustomElementGroup)[]) =>
       update(prevCards, {
@@ -85,6 +70,7 @@ export const useElementStateManagingHook = () => {
     )
   }, [])
 
+  // 선택된 그룹의 정렬을 바꿔주는 함수
   const modifyGroupElementAlign = (direction: GroupAlign) => {
     const selectedGroupedIds = new Set(
       selectedElementList
@@ -92,6 +78,7 @@ export const useElementStateManagingHook = () => {
         .map((element) => element.id)
     )
 
+    // 선택된 그룹이 없다면 리턴
     if (selectedGroupedIds.size === 0) return
 
     setElementList((prevElementList) =>
@@ -108,52 +95,14 @@ export const useElementStateManagingHook = () => {
     )
   }
 
-  useEffect(() => {
-    if (keyPressed.has('Shift') && keyPressed.has('G')) {
-      // 그룹되지 않은 요소들의 id를 추출
-      const selectedUngroupedIds = new Set(
-        selectedElementList
-          .filter((element) => !element.isGrouped)
-          .map((element) => element.id)
-      )
-
-      // 빈 그룹 생성을 막기 위해 그룹되지 않은 요소가 없으면 종료
-      if (selectedUngroupedIds.size === 0) {
-        return
-      }
-
-      // elementList에서 그룹되지 않은 선택된 요소 제거
-      const updatedElementList = elementList.filter(
-        (element) => !selectedUngroupedIds.has(element.id)
-      )
-
-      // 그룹으로 묶을 요소들 생성
-      const groupedElement = {
-        id: uuidv4(),
-        isGroup: true,
-        isSelected: false,
-        groupAlign: globalAlign,
-        childElementList: elementList.filter((element) =>
-          selectedUngroupedIds.has(element.id)
-        )
-      } as CustomElementGroup
-
-      // 새로운 그룹을 기존 elementList의 마지막에 추가
-      setElementList([...updatedElementList, groupedElement])
-
-      // 그룹이 아닌 선택된 요소들 리스트에서 제거
-      setSelectedElementList((prevSelectedList) =>
-        prevSelectedList.filter((element) => element.isGrouped)
-      )
-    }
-  }, [keyPressed, elementList, selectedElementList, globalAlign])
-
+  // 새로운 element를 추가하는 함수
   const addNewElement = (tag: CustomElementBaseTag) => {
     const element = makeCustomElement(tag)
     const currentElementList = [...elementList]
     setElementList([...currentElementList, element])
   }
 
+  // element를 선택하는 함수
   const setSelectElement = ({
     id,
     isGrouped
@@ -188,6 +137,7 @@ export const useElementStateManagingHook = () => {
     setSelectedElementList([...currentSelectedElementList, { id, isGrouped }])
   }
 
+  // 전역 정렬을 설정하는 함수
   const setGlobalAlignHander = (direction: GlobalAlign) => {
     setGlobalAlign(direction)
   }
