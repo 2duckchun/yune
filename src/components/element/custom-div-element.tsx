@@ -42,8 +42,6 @@ export const CustomDivElement: FunctionComponent<CustomDivElementProps> = ({
     },
     hover(item: DraggableCustomElement) {
       if (!ref.current) return
-
-      // 같은 아이템이라면 아무 행동도 일어나지 않음.
       const dragIndex = item.index
       const hoverIndex = index
       if (dragIndex === hoverIndex) return

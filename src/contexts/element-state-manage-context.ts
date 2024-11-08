@@ -1,7 +1,6 @@
-import { getRandomHexColorCode } from '@/lib/utils'
+import { makeCustomElement } from '@/lib/utils'
 import {
   CustomElement,
-  CustomElementBase,
   CustomElementBaseTag,
   CustomElementGroup,
   GlobalAlign,
@@ -9,8 +8,6 @@ import {
   SelectedElement
 } from '@/types/element'
 import { createContext, useCallback, useContext, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import update from 'immutability-helper'
 import { useKeyboardObserver } from '@/hooks/use-keyboard-observer'
 import { useElementGrouping } from '@/hooks/element-state-manage-hooks/use-element-grouping'
 import { useElementUngrouping } from '@/hooks/element-state-manage-hooks/use-element-ungrouping'
@@ -56,18 +53,14 @@ export const useElementStateManagingHook = () => {
 
   // 나열된 element를 이동시키는 함수 (Drag & Drop과 연관있음)
   const moveElement = useCallback((dragIndex: number, hoverIndex: number) => {
-    setElementList((prevCards: (CustomElement | CustomElementGroup)[]) =>
-      update(prevCards, {
-        $splice: [
-          [dragIndex, 1],
-          [
-            hoverIndex,
-            0,
-            prevCards[dragIndex] as CustomElement | CustomElementGroup
-          ]
-        ]
-      })
-    )
+    setElementList((prevCards: (CustomElement | CustomElementGroup)[]) => {
+      const updatedCards = [...prevCards]
+      // dragIndex 위치의 요소를 배열에서 삭제하고 변수에 저장
+      const [removed] = updatedCards.splice(dragIndex, 1)
+      // hoverIndex 위치에 삭제한 요소를 삽입합니다.
+      updatedCards.splice(hoverIndex, 0, removed)
+      return updatedCards
+    })
   }, [])
 
   // 선택된 그룹의 정렬을 바꿔주는 함수
@@ -163,16 +156,4 @@ export const useElementStateManagingContext = () => {
     )
 
   return context
-}
-
-const makeCustomElement = (tag: CustomElementBaseTag): CustomElementBase => {
-  return {
-    id: uuidv4(),
-    color: getRandomHexColorCode(),
-    tag: tag,
-    height: 200,
-    width: 200,
-    isGroup: false,
-    isSelected: false
-  }
 }

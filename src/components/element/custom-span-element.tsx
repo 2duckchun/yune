@@ -41,23 +41,16 @@ export const CustomSpanElement: FunctionComponent<CustomSpanElementProps> = ({
       }
     },
     hover(item: DraggableCustomElement) {
-      if (!ref.current) {
-        return
-      }
-
+      if (!ref.current) return
       const dragIndex = item.index
       const hoverIndex = index
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return
-      }
+      if (dragIndex === hoverIndex) return
 
       moveElement(dragIndex, hoverIndex)
 
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
+      /* 리액트에서는 객체의 불변성을 유지해야 하지만
+      해당 경우는 index search에 대한 비용을 줄이기 위해
+      monitor item의 객체를 직접 변경함. */
       item.index = hoverIndex
     }
   })
