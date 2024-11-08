@@ -22,7 +22,7 @@ export const useKeyboardObserver = () => {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  })
+  }, [])
 
   return {
     keyPressed
