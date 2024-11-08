@@ -25,7 +25,7 @@ export const useElementGrouping = ({
 }) => {
   useEffect(() => {
     if (
-      keyPressed.has('Shift') &&
+      keyPressed.has('Control') &&
       (keyPressed.has('G') || keyPressed.has('ㅎ'))
     ) {
       // 그룹되지 않은 요소들의 id를 추출
