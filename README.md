@@ -2,6 +2,8 @@
 
 [과제 테스트 안내서(노션) 링크](https://kimlian.notion.site/12fe426c5afa8010b7d9e7d6031295cf)
 
+[배포 링크](https://yune-test.2duckchun.com/)
+
 <img width="1499" alt="image" src="https://github.com/user-attachments/assets/dfd6d4e1-b5c5-4e33-a97a-dbafe6676f39">
 
 ## 요구사항 (구현 완료)
@@ -43,7 +45,7 @@ pretter 및 ESLint도 새로 셋팅했습니다. 최근 ESLint가 업데이트�
 
 ### 라이브러리
 
-- `Tailwind CSS` : 빠른 개발이 필요하다고 판단되어 스타일 툴로 Tailwind를 도입했습니다.
+- `Tailwind CSS` : 빠른 개발이 필요하다고 판단되어 가장 숙련도가 높은 CSS 프레임워크인 Tailwind를 도입했습니다.
 - `react-dnd` : Drag&Drop 기능을 구현하기 위해 도입한 라이브러리입니다.
 - `html-to-image` : element를 이미지로 다운로드하기 위해 도입한 라이브러리입니다.
 - `uuid` : 각 element 및 group에 추가할 id로 uuid를 채택했습니다.
@@ -54,7 +56,7 @@ pretter 및 ESLint도 새로 셋팅했습니다. 최근 ESLint가 업데이트�
 
 <img width="595" alt="image" src="https://github.com/user-attachments/assets/3d13e739-782c-4c66-9b30-f020799f20f0" />
 
-- Drag&Drop, 키보드 인지에 따른 동작 등 예리한 구현이 많으므로, 로직을 편하게 관리하기 위해, 최대한 한 곳에 응집하는 것을 의도했습니다.
+- Drag&Drop, 키보드 인지에 따른 동작 등 세세한 구현이 많을 것이라 판단되어 로직을 최대한 한 곳에 응집하여 사이드이펙트를 줄이고, 유지보수성을 높이고자 하였습니다.
 - 따라서 context 환경에 element를 다룰 수 있는 모든 기능을 응집했습니다. 화면단을 구성하는 컴포넌트들은 필요한 데이터를 props drilling 없이 context에서 바로 받아서 화면단 표현에 집중할 수 있도록 구성했습니다.
 - 즉, 로직을 수정하기 위해서는 context hook만 확인하면 되고, 화면단을 수정하기 위해서는 컴포넌트만 확인하면 될 수 있게 구성했습니다.
 
@@ -115,7 +117,7 @@ export type DraggableCustomElement =
 export type SelectedElement = { id: string; isGrouped: boolean }
 ```
 
-- 타입스크립트의 객체지향적 장점을 살리고자 `interface`와 `extends` 문법을 사용하여 최대한 변하지 않을 타입들을 기준으로 삼고, 기준점이 되는 인터페이스를 바탕으로 세부 타입들을 확장시켜 사용했습니다.
+- 타입스크립트의 객체지향적 장점을 살리고자 `interface`와 `extends` 문법을 사용하여 최대한 변하지 않을 타입들을 기준 인터페이스로 삼고, 이러한 인터페이스를 기반으로 세부 타입들을 확장시켜 사용했습니다.
 - 이를 통해 다른 태그(ex: aside, section 등)가 추가되더라도 기존에 만들어진 `interface` 및 `type`을 기반으로 확장되기 쉬운 형태로 타입을 설계했습니다.
 
 ## 주요 개발 기능
@@ -127,7 +129,7 @@ export type SelectedElement = { id: string; isGrouped: boolean }
 
 ```ts
 export const useElementStateManagingHook = () => {
-  // 키 감지를 위한 hook
+  // 키 감지를 위한 훅
   const { keyPressed } = useKeyboardObserver()
 
   // 나열된 element를 관리하는 주요 state
@@ -210,7 +212,6 @@ export const useElementStateManagingHook = () => {
 
 - 어떤 키보드가 눌리고 있는지 관찰하는 hook입니다.
 - 키보드의 중복 입력을 막고, 관리를 편하게 하고자 `Set 자료구조`를 활용했습니다.
-- 이벤트 리스너는 가능하다면 하나만 사용하고, 최대한 상위 컴포넌트에서 관리해야만 후에 발생할 수 있는 사이드 이펙트를 줄여줄 것이라 판단해 이와 같은 hook을 구상했습니다.
 
 ```ts
 import { useEffect, useState } from 'react'
@@ -244,3 +245,9 @@ export const useKeyboardObserver = () => {
   }
 }
 ```
+
+## 회고
+- 프론트엔드 개발자로써 굉장히 의미있는 과제를 수행할 수 있었다는 생각이 듭니다. 너무나도 재미있게 작업한 것 같습니다.
+- 리스트를 다루는 작업이므로, 시간복잡도를 최대한 log(N)으로 맞출 수 없을까 고민했고, Set 자료구조를 사용하여 가능한 선형 복잡도를 유지했습니다.
+- 호버가 일어나면 엘리먼트 위치가 바뀌는 만큼 자잘한 렌더링이 많았습니다. 그러나 useMemo나 useCallback을 과도하게 사용한다면 알 수 없는 사이드이펙트 또한 증가할 것 같았습니다. 개인적으로 렌더링이 일어나는 것은 자연스러운 현상이라 생각해 일단 두었으나, 성능상 이슈가 생기는 것이 확실시된다면 그때 추후 조치를 취할 것 같습니다.
+- Drag&Drop 기능을 빠르게 구현하기 위해 react-dnd 라이브러리를 채택하여 사용했습니다. 라이브러리를 더 잘 이해하게 된다면 앞으로도 다양한 기능을 즐겁게 구현할 수 있을 것 같습니다.
