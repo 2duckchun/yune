@@ -68,6 +68,7 @@ const ElementListAtSideMenu = () => {
           if (element.isGroup) {
             return (
               <SideMenuElementButton
+                key={element.id}
                 index={index}
                 id={element.id}
                 isGrouped
@@ -77,6 +78,7 @@ const ElementListAtSideMenu = () => {
           }
           return (
             <SideMenuElementButton
+              key={element.id}
               index={index}
               id={element.id}
               tag={element.tag}
