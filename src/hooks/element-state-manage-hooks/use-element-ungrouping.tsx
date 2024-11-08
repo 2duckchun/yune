@@ -26,7 +26,7 @@ export const useElementUngrouping = ({
     if (
       keyPressed.has('Shift') &&
       keyPressed.has('Control') &&
-      (keyPressed.has('G') || keyPressed.has('ㅎ'))
+      (keyPressed.has('G') || keyPressed.has('ㅎ') || keyPressed.has('g'))
     ) {
       // 시간복잡도를 고려하여 Set 자료구조 사용 (2중 for문 지양)
       const selectedGroupedIds = new Set(

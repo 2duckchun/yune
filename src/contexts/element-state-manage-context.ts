@@ -19,7 +19,6 @@ export const ElementStateStateContext = createContext<ReturnType<
 export const useElementStateManagingHook = () => {
   // 키 감지를 위한 hook
   const { keyPressed } = useKeyboardObserver()
-
   // 나열된 element를 관리하는 주요 state
   const [elementList, setElementList] = useState<
     (CustomElement | CustomElementGroup)[]
